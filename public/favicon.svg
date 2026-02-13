@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="pillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Capsule Shape -->
+  <rect x="106" y="106" width="300" height="300" rx="150" transform="rotate(-45 256 256)" fill="white"/>
+  <!-- Top Half (Green) -->
+  <path d="M152.7 152.7a150 150 0 0 1 212.1 0L256 261.5Z" transform="rotate(-45 256 256) translate(106 106)" fill="url(#pillGrad)"/>
+  <!-- Cross -->
+  <path fill="white" d="M226 236h60v40h-60z"/>
+  <path fill="white" d="M236 226h40v60h-40z"/>
+  <!-- Outline -->
+  <rect x="106" y="106" width="300" height="300" rx="150" transform="rotate(-45 256 256)" fill="none" stroke="#047857" stroke-width="20"/>
+</svg>
