@@ -38,13 +38,14 @@ defineEmits<{
       class="grid grid-cols-1 xl:grid-cols-2 gap-3 p-1"
     >
       <PharmacyCard
-        v-for="pharmacy in pharmacies"
+        v-for="(pharmacy, index) in pharmacies"
         :key="`${pharmacy.name}__${pharmacy.address}`"
         :pharmacy="pharmacy"
         :is-active="
           activePharmacy?.name === pharmacy.name &&
           activePharmacy?.address === pharmacy.address
         "
+        :is-nearest="index === 0 && pharmacy.distance != null"
         @select="$emit('select', pharmacy)"
       />
     </div>
