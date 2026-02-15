@@ -85,9 +85,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col lg:flex-row overflow-hidden relative">
-    <!-- Sol/Üst: Harita (Mobil: %40 yükseklik, Desktop: %50 genişlik) -->
-    <div class="w-full lg:w-1/2 h-[40vh] lg:h-full relative shrink-0 order-1">
+  <div class="h-[100dvh] w-full flex flex-col lg:flex-row overflow-hidden relative bg-dark-900">
+    <!-- Sol/Üst: Harita (Mobil: 40dvh yükseklik, Desktop: %50 genişlik) -->
+    <div class="w-full lg:w-1/2 h-[40dvh] lg:h-full relative shrink-0 order-1 z-0">
       <!-- Konum bilgisi overlay -->
       <div class="absolute top-3 left-3 right-3 lg:right-auto z-[1000] flex flex-col gap-2 pointer-events-none">
         <div
@@ -126,14 +126,14 @@ onMounted(async () => {
     </div>
 
     <!-- Sağ/Alt: Liste (Mobil: Kalan yükseklik, Desktop: %50 genişlik) -->
-    <div class="w-full lg:w-1/2 flex-1 lg:h-full flex flex-col bg-dark-900 lg:border-l border-dark-700/50 order-2 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:shadow-none">
+    <div class="w-full lg:w-1/2 flex-1 lg:h-full flex flex-col bg-dark-900 lg:border-l border-dark-700/50 order-2 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:shadow-none min-h-0">
       <!-- Tutamaç (Sadece Mobil) -->
       <div class="lg:hidden flex justify-center pt-3 pb-1 shrink-0">
         <div class="w-12 h-1.5 bg-dark-700 rounded-full"></div>
       </div>
 
       <!-- Header Area -->
-      <div class="shrink-0 p-4 border-b border-dark-700/50 space-y-3">
+      <div class="shrink-0 p-4 border-b border-dark-700/50 space-y-3 bg-dark-900">
         <div class="flex items-center justify-between">
           <h2 class="text-sm font-bold text-dark-100 truncate pr-2">
             <template v-if="detectedCityName">
@@ -166,7 +166,7 @@ onMounted(async () => {
       </div>
 
       <!-- List Container -->
-      <div class="flex-1 overflow-y-auto p-4 min-h-0">
+      <div class="flex-1 overflow-y-auto p-4 min-h-0 overscroll-contain">
         <PharmacyList
           :pharmacies="pharmacies"
           :is-loading="isLoading"
