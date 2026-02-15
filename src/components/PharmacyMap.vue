@@ -211,7 +211,7 @@ watch(
     if (newLoc && map) {
        lastUserLocationTime.value = Date.now()
        
-       map.setView([newLoc.lat, newLoc.lng], 15, { animate: true, duration: 1.0 })
+       map.setView([newLoc.lat, newLoc.lng], 14, { animate: true, duration: 1.0 })
        
        nextTick(() => updateMarkers())
     } else {
@@ -224,7 +224,7 @@ onMounted(() => {
   initMap()
   if (props.userLocation && map) {
      lastUserLocationTime.value = Date.now()
-     map.setView([props.userLocation.lat, props.userLocation.lng], 13)
+     map.setView([props.userLocation.lat, props.userLocation.lng], 14)
   }
   
   if (props.pharmacies.length > 0) {
