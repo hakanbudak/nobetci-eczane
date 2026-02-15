@@ -21,38 +21,42 @@ let markersGroup: L.LayerGroup | null = null
 let userMarker: L.Marker | null = null
 const markerMap = new Map<string, L.Marker>()
 
-const pharmacyIcon = L.divIcon({
-  html: `<div class="flex items-center justify-center w-8 h-8 bg-emerald-600 rounded-full shadow-lg border-2 border-white">
-    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M10 2a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0V9H5a1 1 0 010-2h4V3a1 1 0 011-1z"/>
-    </svg>
-  </div>`,
-  className: 'pharmacy-marker',
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-  popupAnchor: [0, -20],
-})
+function createPharmacyIcon(name: string, isActive: boolean): L.DivIcon {
+  const bgColor = isActive ? '#2563eb' : '#FF0000'
+  const borderColor = isActive ? '#60a5fa' : '#3b82f6'
+  const scale = isActive ? 'transform: scale(1.1);' : ''
 
-const activePharmacyIcon = L.divIcon({
-  html: `<div class="flex items-center justify-center w-10 h-10 bg-emerald-500 rounded-full shadow-xl border-3 border-white animate-pulse">
-    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M10 2a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0V9H5a1 1 0 010-2h4V3a1 1 0 011-1z"/>
-    </svg>
-  </div>`,
-  className: 'pharmacy-marker-active',
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -24],
-})
+  return L.divIcon({
+    html: `
+      <div style="display: flex; align-items: center; gap: 4px; ${scale}">
+        <div style="
+          width: 28px; height: 28px;
+          background: ${bgColor};
+          border: 2px solid ${borderColor};
+          border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          color: white; font-weight: 900; font-size: 14px;
+          font-family: 'Inter', sans-serif;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        ">E</div>
+        <span class="pharmacy-label">${name}</span>
+      </div>
+    `,
+    className: 'pharmacy-marker',
+    iconSize: [200, 32],
+    iconAnchor: [14, 16],
+    popupAnchor: [80, -20],
+  })
+}
 
 const userIcon = L.divIcon({
-  html: `<div class="relative">
-    <div class="w-4 h-4 bg-blue-500 rounded-full border-3 border-white shadow-lg"></div>
-    <div class="absolute inset-0 w-4 h-4 bg-blue-400 rounded-full animate-ping opacity-75"></div>
+  html: `<div style="position: relative;">
+    <div style="width: 14px; height: 14px; background: #3b82f6; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.4);"></div>
+    <div style="position: absolute; inset: 0; width: 14px; height: 14px; background: #60a5fa; border-radius: 50%; animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite; opacity: 0.6;"></div>
   </div>`,
   className: 'user-marker',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
 })
 
 function getMarkerKey(pharmacy: Pharmacy): string {
@@ -62,13 +66,16 @@ function getMarkerKey(pharmacy: Pharmacy): string {
 function createPopupContent(pharmacy: Pharmacy): string {
   const phone = pharmacy.phone.replace(/\s/g, '')
   return `
-    <div class="p-3 min-w-[180px]">
-      <h3 class="font-semibold text-slate-800 text-sm mb-1">${pharmacy.name}</h3>
-      <p class="text-xs text-emerald-600 font-medium mb-1">${pharmacy.district}</p>
-      <p class="text-xs text-slate-500 mb-2 leading-relaxed">${pharmacy.address}</p>
-      <div class="flex gap-1.5">
-        <a href="tel:${phone}" class="flex-1 text-center text-xs font-semibold bg-emerald-50 text-emerald-600 rounded-lg py-1.5 hover:bg-emerald-100">📞 Ara</a>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${pharmacy.location.lat},${pharmacy.location.lng}" target="_blank" rel="noopener" class="flex-1 text-center text-xs font-semibold bg-emerald-600 text-white rounded-lg py-1.5 hover:bg-emerald-700">🗺️ Git</a>
+    <div style="padding: 12px; min-width: 180px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <div style="width: 24px; height: 24px; background: #1e40af; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 12px;">E</div>
+        <h3 style="font-weight: 700; color: #f1f5f9; font-size: 13px; margin: 0;">${pharmacy.name}</h3>
+      </div>
+      <p style="font-size: 11px; color: #60a5fa; font-weight: 600; margin: 0 0 4px 0;">${pharmacy.district}</p>
+      <p style="font-size: 11px; color: #94a3b8; margin: 0 0 10px 0; line-height: 1.4;">${pharmacy.address}</p>
+      <div style="display: flex; gap: 6px;">
+        <a href="tel:${phone}" style="flex: 1; text-align: center; font-size: 11px; font-weight: 600; background: rgba(37,99,235,0.2); color: #60a5fa; border-radius: 8px; padding: 6px; text-decoration: none;">📞 Ara</a>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${pharmacy.location.lat},${pharmacy.location.lng}" target="_blank" rel="noopener" style="flex: 1; text-align: center; font-size: 11px; font-weight: 600; background: #2563eb; color: white; border-radius: 8px; padding: 6px; text-decoration: none;">🗺️ Git</a>
       </div>
     </div>
   `
@@ -77,7 +84,7 @@ function createPopupContent(pharmacy: Pharmacy): string {
 function initMap(): void {
   if (!mapContainer.value || map) return
 
-  const defaultCenter: L.LatLngExpression = [39.925, 32.866] // Ankara
+  const defaultCenter: L.LatLngExpression = [39.925, 32.866]
   const defaultZoom = 6
 
   map = L.map(mapContainer.value, {
@@ -113,12 +120,12 @@ function updateMarkers(): void {
       props.activePharmacy?.address === pharmacy.address
 
     const marker = L.marker([pharmacy.location.lat, pharmacy.location.lng], {
-      icon: isActive ? activePharmacyIcon : pharmacyIcon,
+      icon: createPharmacyIcon(pharmacy.name, isActive),
     })
 
     marker.bindPopup(createPopupContent(pharmacy), {
       closeButton: false,
-      maxWidth: 250,
+      maxWidth: 260,
     })
 
     marker.on('click', () => {
@@ -137,7 +144,7 @@ function updateMarkers(): void {
       icon: userIcon,
       zIndexOffset: 1000,
     })
-      .bindPopup('<div class="p-2 text-xs font-medium text-blue-600">📍 Konumunuz</div>', {
+      .bindPopup('<div style="padding: 8px; font-size: 11px; font-weight: 600; color: #60a5fa;">📍 Konumunuz</div>', {
         closeButton: false,
       })
       .addTo(map)
@@ -152,7 +159,7 @@ function fitBounds(): void {
   if (props.userLocation) {
     map.setView(
       [props.userLocation.lat, props.userLocation.lng],
-      13, // Sokak seviyesi zoom
+      13,
       { animate: true, duration: 0.8 }
     )
     return
@@ -195,7 +202,6 @@ watch(
   () => props.activePharmacy,
   (newPharmacy) => {
     if (newPharmacy) {
-      // Marker ikonlarını güncelle
       updateMarkers()
       focusOnPharmacy(newPharmacy)
     }
@@ -227,14 +233,20 @@ defineExpose({ focusOnPharmacy })
 </script>
 
 <template>
-  <div ref="mapContainer" class="w-full h-full rounded-xl overflow-hidden" />
+  <div ref="mapContainer" class="w-full h-full" />
 </template>
 
 <style>
 .pharmacy-marker,
-.pharmacy-marker-active,
 .user-marker {
   background: transparent !important;
   border: none !important;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 </style>

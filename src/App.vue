@@ -4,9 +4,9 @@ import AppHeader from '@/components/AppHeader.vue'
 </script>
 
 <template>
-  <div class="min-h-dvh flex flex-col bg-slate-50">
+  <div class="h-full flex flex-col overflow-hidden bg-dark-900">
     <AppHeader />
-    <main class="flex-1 flex flex-col">
+    <main class="flex-1 overflow-hidden">
       <RouterView />
     </main>
   </div>

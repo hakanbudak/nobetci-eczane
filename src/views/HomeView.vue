@@ -79,53 +79,68 @@ onMounted(async () => {
     selectedCitySlug.value = nearest.slug
 
     await fetchPharmacies(nearest.name)
-
     sortByDistance(coords)
   }
 })
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col lg:flex-row">
-    <div class="lg:w-[420px] flex flex-col bg-white lg:border-r lg:border-slate-200 order-2 lg:order-1">
-      <div class="p-4 space-y-3 border-b border-slate-100">
+  <div class="h-full flex overflow-hidden">
+    <!-- Sol: Harita (sabit, scroll olmaz) -->
+    <div class="w-1/2 h-full relative shrink-0">
+      <!-- Konum bilgisi overlay (harita üstünde sol üst) -->
+      <div class="absolute top-3 left-3 z-[1000]">
         <div
           v-if="status === 'idle' || status === 'requesting'"
-          class="flex items-center gap-3 bg-emerald-50 text-emerald-700 rounded-2xl px-4 py-3.5 text-sm"
+          class="flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-dark-700/50"
         >
-          <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4 animate-spin text-emerald-600" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-          </div>
-          <div>
-            <div class="font-semibold text-sm">Konumunuz alınıyor...</div>
-            <div class="text-xs text-emerald-600/70">Lütfen konum iznini onaylayın</div>
-          </div>
+          <svg class="w-3.5 h-3.5 animate-spin text-primary-400" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          Konum alınıyor...
         </div>
 
         <div
           v-if="status === 'granted' && detectedCityName"
-          class="flex items-center gap-3 bg-emerald-50 text-emerald-700 rounded-2xl px-4 py-3 text-sm"
+          class="flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-primary-700/30"
         >
-          <div class="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <div>
-            <span class="font-semibold">📍 {{ detectedCityName }}</span>
-            <span class="text-xs text-emerald-600/70 ml-1">konumunuza göre</span>
-          </div>
+          <span class="w-2 h-2 bg-primary-400 rounded-full"></span>
+          📍 {{ detectedCityName }} · {{ pharmacies.length }} eczane
         </div>
 
         <div
           v-if="status === 'denied' || status === 'unavailable'"
-          class="bg-amber-50 text-amber-700 rounded-2xl px-4 py-3 text-xs"
+          class="bg-dark-900/90 backdrop-blur-sm text-amber-400 rounded-lg px-3 py-2 text-xs border border-amber-700/30"
         >
-          <p class="font-medium mb-1">📍 Konum alınamadı</p>
-          <p>Aşağıdan şehir seçerek nöbetçi eczaneleri arayabilirsiniz.</p>
+          📍 Konum alınamadı — Sağ panelden şehir seçin
+        </div>
+      </div>
+
+      <PharmacyMap
+        :pharmacies="pharmacies"
+        :user-location="coordinates"
+        :active-pharmacy="activePharmacy"
+        @select-pharmacy="handlePharmacySelect"
+      />
+    </div>
+
+    <!-- Sağ: Kontroller + Eczane Listesi (sadece bu alan scroll yapar) -->
+    <div class="w-1/2 h-full flex flex-col bg-dark-900 border-l border-dark-700/50">
+      <!-- Üst: Şehir seçici + Bilgiler -->
+      <div class="shrink-0 p-4 border-b border-dark-700/50 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-dark-100">
+            <template v-if="detectedCityName">
+              {{ detectedCityName }} Nöbetçi Eczaneler
+            </template>
+            <template v-else>
+              Nöbetçi Eczaneler
+            </template>
+          </h2>
+          <span v-if="!isLoading && pharmacies.length > 0" class="text-xs text-dark-500 font-medium">
+            {{ pharmacies.length }} sonuç
+          </span>
         </div>
 
         <CitySelector
@@ -137,19 +152,15 @@ onMounted(async () => {
         />
       </div>
 
+      <!-- Hata -->
       <div
         v-if="error"
-        class="mx-4 mt-3 bg-red-50 text-red-600 text-xs rounded-xl px-4 py-3"
+        class="mx-4 mt-3 bg-red-950/50 text-red-400 text-xs rounded-lg px-4 py-3 border border-red-800/30"
       >
         {{ error }}
       </div>
 
-      <div v-if="!isLoading && pharmacies.length > 0" class="px-4 pt-3">
-        <p class="text-xs text-slate-400 font-medium">
-          {{ pharmacies.length }} nöbetçi eczane bulundu
-        </p>
-      </div>
-
+      <!-- Eczane Listesi (scroll sadece burada) -->
       <div class="flex-1 overflow-y-auto p-4">
         <PharmacyList
           :pharmacies="pharmacies"
@@ -158,15 +169,6 @@ onMounted(async () => {
           @select="handlePharmacySelect"
         />
       </div>
-    </div>
-
-    <div class="h-[45vh] lg:h-auto lg:flex-1 order-1 lg:order-2 relative">
-      <PharmacyMap
-        :pharmacies="pharmacies"
-        :user-location="coordinates"
-        :active-pharmacy="activePharmacy"
-        @select-pharmacy="handlePharmacySelect"
-      />
     </div>
   </div>
 </template>

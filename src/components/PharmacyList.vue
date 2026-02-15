@@ -8,40 +8,61 @@ defineProps<{
   activePharmacy?: Pharmacy | null
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   select: [pharmacy: Pharmacy]
 }>()
 </script>
 
 <template>
-  <div v-if="isLoading" class="space-y-3">
-    <div v-for="i in 5" :key="i" class="bg-white rounded-2xl border border-slate-200 p-4">
-      <div class="flex items-start justify-between gap-3 mb-3">
-        <div class="skeleton h-4 w-36" />
-        <div class="skeleton h-5 w-14 rounded-full" />
-      </div>
-      <div class="skeleton h-3 w-20 mb-2" />
-      <div class="skeleton h-3 w-full mb-1" />
-      <div class="skeleton h-3 w-3/4 mb-4" />
-      <div class="flex gap-2">
-        <div class="skeleton h-9 flex-1 rounded-xl" />
-        <div class="skeleton h-9 flex-1 rounded-xl" />
+  <div class="h-full">
+    <!-- Loading Skeleton -->
+    <div v-if="isLoading" class="grid grid-cols-1 xl:grid-cols-2 gap-3 p-1">
+      <div v-for="n in 6" :key="n" class="bg-dark-800 border border-dark-700/50 rounded-xl p-4">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="skeleton w-9 h-9 rounded-lg shrink-0" />
+          <div class="skeleton h-4 w-3/4 rounded" />
+        </div>
+        <div class="flex gap-2 mb-2.5">
+          <div class="skeleton h-5 w-20 rounded-md" />
+          <div class="skeleton h-5 w-14 rounded-md" />
+        </div>
+        <div class="skeleton h-3 w-full rounded mb-1.5" />
+        <div class="skeleton h-3 w-2/3 rounded mb-3" />
+        <div class="skeleton h-3 w-1/2 rounded" />
       </div>
     </div>
-  </div>
 
-  <div v-else-if="pharmacies.length > 0" class="space-y-3">
-    <PharmacyCard
-      v-for="pharmacy in pharmacies"
-      :key="`${pharmacy.name}-${pharmacy.district}`"
-      :pharmacy="pharmacy"
-      :is-active="activePharmacy?.name === pharmacy.name && activePharmacy?.address === pharmacy.address"
-      @select="emit('select', $event)"
-    />
-  </div>
+    <!-- Pharmacy Cards Grid -->
+    <div
+      v-else-if="pharmacies.length > 0"
+      class="grid grid-cols-1 xl:grid-cols-2 gap-3 p-1"
+    >
+      <PharmacyCard
+        v-for="pharmacy in pharmacies"
+        :key="`${pharmacy.name}__${pharmacy.address}`"
+        :pharmacy="pharmacy"
+        :is-active="
+          activePharmacy?.name === pharmacy.name &&
+          activePharmacy?.address === pharmacy.address
+        "
+        @select="$emit('select', pharmacy)"
+      />
+    </div>
 
-  <div v-else class="text-center py-12">
-    <div class="text-4xl mb-3">🔍</div>
-    <p class="text-slate-500 text-sm">Bu bölgede nöbetçi eczane bulunamadı.</p>
+    <!-- Empty State -->
+    <div
+      v-else
+      class="flex flex-col items-center justify-center h-full text-center px-6"
+    >
+      <div class="w-16 h-16 bg-dark-800 rounded-2xl flex items-center justify-center mb-4 border border-dark-700/50">
+        <span class="text-2xl">💊</span>
+      </div>
+      <p class="text-sm font-medium text-dark-300 mb-1">
+        Nöbetçi eczane bulunamadı
+      </p>
+      <p class="text-xs text-dark-500">
+        Konumunuz alındığında en yakın eczaneler burada görünecek.
+      </p>
+    </div>
   </div>
 </template>
