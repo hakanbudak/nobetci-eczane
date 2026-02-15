@@ -153,15 +153,12 @@ function updateMarkers(): void {
   fitBounds()
 }
 
+const lastUserLocationTime = ref(0)
+
 function fitBounds(): void {
   if (!map || props.pharmacies.length === 0) return
 
-  if (props.userLocation) {
-    map.setView(
-      [props.userLocation.lat, props.userLocation.lng],
-      13,
-      { animate: true, duration: 0.8 }
-    )
+  if (Date.now() - lastUserLocationTime.value < 2000) {
     return
   }
 
@@ -210,13 +207,26 @@ watch(
 
 watch(
   () => props.userLocation,
-  () => {
-    nextTick(() => updateMarkers())
+  (newLoc) => {
+    if (newLoc && map) {
+       lastUserLocationTime.value = Date.now()
+       
+       map.setView([newLoc.lat, newLoc.lng], 15, { animate: true, duration: 1.0 })
+       
+       nextTick(() => updateMarkers())
+    } else {
+       nextTick(() => updateMarkers())
+    }
   }
 )
 
 onMounted(() => {
   initMap()
+  if (props.userLocation && map) {
+     lastUserLocationTime.value = Date.now()
+     map.setView([props.userLocation.lat, props.userLocation.lng], 15)
+  }
+  
   if (props.pharmacies.length > 0) {
     updateMarkers()
   }
