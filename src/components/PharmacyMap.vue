@@ -224,7 +224,7 @@ onMounted(() => {
   initMap()
   if (props.userLocation && map) {
      lastUserLocationTime.value = Date.now()
-     map.setView([props.userLocation.lat, props.userLocation.lng], 15)
+     map.setView([props.userLocation.lat, props.userLocation.lng], 13)
   }
   
   if (props.pharmacies.length > 0) {
