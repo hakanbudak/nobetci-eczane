@@ -22,7 +22,7 @@ let userMarker: L.Marker | null = null
 const markerMap = new Map<string, L.Marker>()
 
 function createPharmacyIcon(name: string, isActive: boolean): L.DivIcon {
-  const bgColor = isActive ? '#2563eb' : '#FF0000'
+  const bgColor = isActive ? '#FF0000' : '#FF0000'
   const borderColor = isActive ? '#60a5fa' : '#3b82f6'
   const scale = isActive ? 'transform: scale(1.1);' : ''
 
@@ -68,7 +68,7 @@ function createPopupContent(pharmacy: Pharmacy): string {
   return `
     <div style="padding: 12px; min-width: 180px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-        <div style="width: 24px; height: 24px; background: #1e40af; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 12px;">E</div>
+        <div style="width: 24px; height: 24px; background: #FF0000; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 12px;">E</div>
         <h3 style="font-weight: 700; color: #f1f5f9; font-size: 13px; margin: 0;">${pharmacy.name}</h3>
       </div>
       <p style="font-size: 11px; color: #60a5fa; font-weight: 600; margin: 0 0 4px 0;">${pharmacy.district}</p>

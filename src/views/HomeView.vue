@@ -85,14 +85,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-full flex overflow-hidden">
-    <!-- Sol: Harita (sabit, scroll olmaz) -->
-    <div class="w-1/2 h-full relative shrink-0">
-      <!-- Konum bilgisi overlay (harita üstünde sol üst) -->
-      <div class="absolute top-3 left-3 z-[1000]">
+  <div class="h-full flex flex-col lg:flex-row overflow-hidden relative">
+    <!-- Sol/Üst: Harita (Mobil: %40 yükseklik, Desktop: %50 genişlik) -->
+    <div class="w-full lg:w-1/2 h-[40vh] lg:h-full relative shrink-0 order-1">
+      <!-- Konum bilgisi overlay -->
+      <div class="absolute top-3 left-3 right-3 lg:right-auto z-[1000] flex flex-col gap-2 pointer-events-none">
         <div
           v-if="status === 'idle' || status === 'requesting'"
-          class="flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-dark-700/50"
+          class="inline-flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-dark-700/50 shadow-lg pointer-events-auto w-fit"
         >
           <svg class="w-3.5 h-3.5 animate-spin text-primary-400" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -103,17 +103,17 @@ onMounted(async () => {
 
         <div
           v-if="status === 'granted' && detectedCityName"
-          class="flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-primary-700/30"
+          class="inline-flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-primary-700/30 shadow-lg pointer-events-auto w-fit"
         >
-          <span class="w-2 h-2 bg-primary-400 rounded-full"></span>
-          📍 {{ detectedCityName }} · {{ pharmacies.length }} eczane
+          <span class="w-2 h-2 bg-primary-400 rounded-full shrink-0"></span>
+          <span class="truncate">📍 {{ detectedCityName }} · {{ pharmacies.length }} eczane</span>
         </div>
 
         <div
           v-if="status === 'denied' || status === 'unavailable'"
-          class="bg-dark-900/90 backdrop-blur-sm text-amber-400 rounded-lg px-3 py-2 text-xs border border-amber-700/30"
+          class="inline-flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-amber-400 rounded-lg px-3 py-2 text-xs border border-amber-700/30 shadow-lg pointer-events-auto w-fit"
         >
-          📍 Konum alınamadı — Sağ panelden şehir seçin
+          <span>📍 Konum yok</span>
         </div>
       </div>
 
@@ -125,12 +125,17 @@ onMounted(async () => {
       />
     </div>
 
-    <!-- Sağ: Kontroller + Eczane Listesi (sadece bu alan scroll yapar) -->
-    <div class="w-1/2 h-full flex flex-col bg-dark-900 border-l border-dark-700/50">
-      <!-- Üst: Şehir seçici + Bilgiler -->
+    <!-- Sağ/Alt: Liste (Mobil: Kalan yükseklik, Desktop: %50 genişlik) -->
+    <div class="w-full lg:w-1/2 flex-1 lg:h-full flex flex-col bg-dark-900 lg:border-l border-dark-700/50 order-2 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:shadow-none">
+      <!-- Tutamaç (Sadece Mobil) -->
+      <div class="lg:hidden flex justify-center pt-3 pb-1 shrink-0">
+        <div class="w-12 h-1.5 bg-dark-700 rounded-full"></div>
+      </div>
+
+      <!-- Header Area -->
       <div class="shrink-0 p-4 border-b border-dark-700/50 space-y-3">
         <div class="flex items-center justify-between">
-          <h2 class="text-sm font-bold text-dark-100">
+          <h2 class="text-sm font-bold text-dark-100 truncate pr-2">
             <template v-if="detectedCityName">
               {{ detectedCityName }} Nöbetçi Eczaneler
             </template>
@@ -138,7 +143,7 @@ onMounted(async () => {
               Nöbetçi Eczaneler
             </template>
           </h2>
-          <span v-if="!isLoading && pharmacies.length > 0" class="text-xs text-dark-500 font-medium">
+          <span v-if="!isLoading && pharmacies.length > 0" class="text-xs text-dark-500 font-medium whitespace-nowrap">
             {{ pharmacies.length }} sonuç
           </span>
         </div>
@@ -155,13 +160,13 @@ onMounted(async () => {
       <!-- Hata -->
       <div
         v-if="error"
-        class="mx-4 mt-3 bg-red-950/50 text-red-400 text-xs rounded-lg px-4 py-3 border border-red-800/30"
+        class="mx-4 mt-3 bg-red-950/50 text-red-400 text-xs rounded-lg px-4 py-3 border border-red-800/30 shrink-0"
       >
         {{ error }}
       </div>
 
-      <!-- Eczane Listesi (scroll sadece burada) -->
-      <div class="flex-1 overflow-y-auto p-4">
+      <!-- List Container -->
+      <div class="flex-1 overflow-y-auto p-4 min-h-0">
         <PharmacyList
           :pharmacies="pharmacies"
           :is-loading="isLoading"
