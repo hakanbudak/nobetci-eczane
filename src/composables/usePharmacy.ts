@@ -81,7 +81,19 @@ export function usePharmacy() {
             // data is an array of day groups: [{day: "Dün", pharmacies: [...]}, {day: "Bugün", pharmacies: [...]}]
             const dayGroups = data.data || []
             const todayGroup = dayGroups.find((g: { day: string }) => g.day === 'Bugün') || dayGroups[dayGroups.length - 1]
-            const result: PharmacyApiItem[] = todayGroup?.pharmacies || []
+            const rawPharmacies: PharmacyApiItem[] = todayGroup?.pharmacies || []
+
+            // API returns duplicates (ALL CAPS short entry + detailed entry with same phone).
+            // Deduplicate by phone, keeping the entry with the longer address.
+            const phoneMap = new Map<string, PharmacyApiItem>()
+            for (const p of rawPharmacies) {
+                const normalizedPhone = p.phone?.replace(/[\s\-()]/g, '') || p.id
+                const existing = phoneMap.get(normalizedPhone)
+                if (!existing || (p.address?.length || 0) > (existing.address?.length || 0)) {
+                    phoneMap.set(normalizedPhone, p)
+                }
+            }
+            const result = Array.from(phoneMap.values())
             pharmacies.value = result.map(mapApiItemToPharmacy)
 
             cache.value = {
