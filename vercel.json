@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/eczane/:path*",
+            "destination": "https://eczaneapi.com/api/v1/:path*"
+        }
+    ]
+}

@@ -2,9 +2,7 @@ import { ref } from 'vue'
 import type { Pharmacy, PharmacyApiItem, Coordinates } from '@/types/pharmacy'
 import { calculateDistance } from '@/utils/distance'
 
-const ECZANE_API_BASE = import.meta.env.DEV
-    ? '/api/eczane'
-    : 'https://eczaneapi.com/api/v1'
+const ECZANE_API_BASE = '/api/eczane'
 const API_KEY = import.meta.env.VITE_COLLECT_API_KEY as string | undefined
 
 interface PharmacyCache {
