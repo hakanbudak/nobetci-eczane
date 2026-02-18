@@ -39,7 +39,7 @@ function handlePharmacySelect(pharmacy: Pharmacy): void {
   activePharmacy.value = pharmacy
 }
 
-async function handleCityChange(cityName: string, citySlug: string): Promise<void> {
+async function handleCityChange(_cityName: string, citySlug: string): Promise<void> {
   selectedCitySlug.value = citySlug
   selectedDistrictSlug.value = ''
   selectedDistrictName.value = ''
