@@ -2,7 +2,9 @@ import { ref } from 'vue'
 import type { Pharmacy, PharmacyApiItem, Coordinates } from '@/types/pharmacy'
 import { calculateDistance } from '@/utils/distance'
 
-const COLLECT_API_BASE = 'https://api.collectapi.com/health'
+const ECZANE_API_BASE = import.meta.env.DEV
+    ? '/api/eczane'
+    : 'https://eczaneapi.com/api/v1'
 const API_KEY = import.meta.env.VITE_COLLECT_API_KEY as string | undefined
 
 interface PharmacyCache {
@@ -14,26 +16,22 @@ interface PharmacyCache {
 const cache = ref<PharmacyCache | null>(null)
 const CACHE_DURATION = 1000 * 60 * 60 // 1 saat
 
-function parseLocation(loc: string): Coordinates {
-    const parts = loc.split(',')
-    return {
-        lat: parseFloat(parts[0] ?? '0') || 0,
-        lng: parseFloat(parts[1] ?? '0') || 0,
-    }
-}
-
 function mapApiItemToPharmacy(item: PharmacyApiItem): Pharmacy {
     return {
         name: item.name,
-        district: item.dist,
+        district: item.district.name,
         address: item.address,
         phone: item.phone,
-        location: parseLocation(item.loc),
+        phone2: item.phone2,
+        location: {
+            lat: item.location.latitude,
+            lng: item.location.longitude,
+        },
     }
 }
 
-function getCacheKey(city: string, district?: string): string {
-    return district ? `${city}__${district}` : city
+function getCacheKey(citySlug: string, districtSlug?: string): string {
+    return districtSlug ? `${citySlug}__${districtSlug}` : citySlug
 }
 
 export function usePharmacy() {
@@ -41,8 +39,8 @@ export function usePharmacy() {
     const isLoading = ref(false)
     const error = ref<string | null>(null)
 
-    async function fetchPharmacies(city: string, district?: string): Promise<void> {
-        const cacheKey = getCacheKey(city, district)
+    async function fetchPharmacies(citySlug: string, districtSlug?: string): Promise<void> {
+        const cacheKey = getCacheKey(citySlug, districtSlug)
 
         if (
             cache.value &&
@@ -57,9 +55,9 @@ export function usePharmacy() {
         error.value = null
 
         try {
-            let url = `${COLLECT_API_BASE}/dutyPharmacy?il=${encodeURIComponent(city)}`
-            if (district) {
-                url += `&ilce=${encodeURIComponent(district)}`
+            let url = `${ECZANE_API_BASE}/pharmacies/on-duty?city=${encodeURIComponent(citySlug)}`
+            if (districtSlug) {
+                url += `&district=${encodeURIComponent(districtSlug)}`
             }
 
             const headers: Record<string, string> = {
@@ -67,7 +65,7 @@ export function usePharmacy() {
             }
 
             if (API_KEY) {
-                headers['authorization'] = API_KEY
+                headers['X-API-Key'] = API_KEY
             }
 
             const response = await fetch(url, { headers })
@@ -79,10 +77,13 @@ export function usePharmacy() {
             const data = await response.json()
 
             if (!data.success) {
-                throw new Error('API başarısız yanıt döndü.')
+                throw new Error(data.error || 'API başarısız yanıt döndü.')
             }
 
-            const result: PharmacyApiItem[] = data.result || []
+            // data is an array of day groups: [{day: "Dün", pharmacies: [...]}, {day: "Bugün", pharmacies: [...]}]
+            const dayGroups = data.data || []
+            const todayGroup = dayGroups.find((g: { day: string }) => g.day === 'Bugün') || dayGroups[dayGroups.length - 1]
+            const result: PharmacyApiItem[] = todayGroup?.pharmacies || []
             pharmacies.value = result.map(mapApiItemToPharmacy)
 
             cache.value = {

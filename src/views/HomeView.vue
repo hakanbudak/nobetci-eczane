@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useGeolocation } from '@/composables/useGeolocation'
 import { usePharmacy } from '@/composables/usePharmacy'
-import { useCities } from '@/composables/useCities'
 import { findNearestCity } from '@/utils/reverseGeocode'
 import PharmacyMap from '@/components/PharmacyMap.vue'
 import PharmacyList from '@/components/PharmacyList.vue'
@@ -29,10 +28,10 @@ useHead({
 
 const { coordinates, status, requestLocation } = useGeolocation()
 const { pharmacies, isLoading, error, fetchPharmacies, sortByDistance } = usePharmacy()
-const { getCityBySlug } = useCities()
 
 const activePharmacy = ref<Pharmacy | null>(null)
 const selectedCitySlug = ref<string>('')
+const selectedDistrictSlug = ref<string>('')
 const selectedDistrictName = ref<string>('')
 const detectedCityName = ref<string>('')
 
@@ -42,21 +41,22 @@ function handlePharmacySelect(pharmacy: Pharmacy): void {
 
 async function handleCityChange(cityName: string, citySlug: string): Promise<void> {
   selectedCitySlug.value = citySlug
+  selectedDistrictSlug.value = ''
   selectedDistrictName.value = ''
   detectedCityName.value = ''
-  await fetchPharmacies(cityName)
+  await fetchPharmacies(citySlug)
 
   if (coordinates.value) {
     sortByDistance(coordinates.value)
   }
 }
 
-async function handleDistrictChange(districtName: string, _districtSlug: string): Promise<void> {
+async function handleDistrictChange(districtName: string, districtSlug: string): Promise<void> {
+  selectedDistrictSlug.value = districtSlug
   selectedDistrictName.value = districtName
 
-  const city = getCityBySlug(selectedCitySlug.value)
-  if (city) {
-    await fetchPharmacies(city.name, districtName)
+  if (selectedCitySlug.value) {
+    await fetchPharmacies(selectedCitySlug.value, districtSlug)
     if (coordinates.value) {
       sortByDistance(coordinates.value)
     }
@@ -65,6 +65,7 @@ async function handleDistrictChange(districtName: string, _districtSlug: string)
 
 function handleCityClear(): void {
   selectedCitySlug.value = ''
+  selectedDistrictSlug.value = ''
   selectedDistrictName.value = ''
   detectedCityName.value = ''
   pharmacies.value = []
@@ -78,7 +79,7 @@ onMounted(async () => {
     detectedCityName.value = nearest.name
     selectedCitySlug.value = nearest.slug
 
-    await fetchPharmacies(nearest.name)
+    await fetchPharmacies(nearest.slug)
     sortByDistance(coords)
   }
 })

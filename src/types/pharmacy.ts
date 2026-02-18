@@ -8,19 +8,47 @@ export interface Pharmacy {
     district: string
     address: string
     phone: string
+    phone2?: string | null
     location: Coordinates
     distance?: number
 }
 
+export interface PharmacyDayGroup {
+    day: string
+    date: string
+    count: number
+    pharmacies: PharmacyApiItem[]
+}
+
 export interface PharmacyApiResponse {
     success: boolean
-    result: PharmacyApiItem[]
+    data: PharmacyDayGroup[]
 }
 
 export interface PharmacyApiItem {
+    id: string
     name: string
-    dist: string
     address: string
     phone: string
-    loc: string
+    phone2: string | null
+    location: {
+        latitude: number
+        longitude: number
+    }
+    city: {
+        id: string
+        name: string
+        slug: string
+    }
+    district: {
+        id: string
+        name: string
+        slug: string
+    }
+    duty: {
+        date: string
+        startTime: string | null
+        endTime: string | null
+        isVerified: boolean
+    }
 }

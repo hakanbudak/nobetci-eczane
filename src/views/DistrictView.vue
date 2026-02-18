@@ -54,7 +54,7 @@ onMounted(async () => {
     return
   }
 
-  await fetchPharmacies(city.value.name, district.value.name)
+  await fetchPharmacies(citySlug.value, districtSlug.value)
 
   const coords = await requestLocation()
   if (coords) {
