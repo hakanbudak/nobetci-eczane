@@ -47,7 +47,7 @@ function navigateToDistrict(districtSlug: string): void {
 
 onMounted(async () => {
   if (!city.value) {
-    router.replace('/sehirler')
+    router.replace('/')
     return
   }
 

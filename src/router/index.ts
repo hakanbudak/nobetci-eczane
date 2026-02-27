@@ -13,15 +13,6 @@ const routes: RouteRecordRaw[] = [
         },
     },
     {
-        path: '/sehirler',
-        name: 'cities',
-        component: () => import('@/views/CitiesView.vue'),
-        meta: {
-            title: 'Tüm Şehirler - Nöbetçi Eczane',
-            description: 'Türkiye\'nin tüm illerinde nöbetçi eczane bilgilerine ulaşın.',
-        },
-    },
-    {
         path: '/:city',
         name: 'city',
         component: () => import('@/views/CityView.vue'),

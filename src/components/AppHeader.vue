@@ -12,15 +12,6 @@ import { RouterLink } from 'vue-router'
         <span class="w-7 h-7 bg-[#FF0000] rounded-lg flex items-center justify-center text-white text-sm font-black">E</span>
         <span class="text-dark-100">Nöbetçi Eczane</span>
       </RouterLink>
-
-      <nav class="flex items-center gap-3">
-        <RouterLink
-          to="/sehirler"
-          class="text-xs font-medium text-dark-400 hover:text-primary-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-dark-800"
-        >
-          Tüm Şehirler
-        </RouterLink>
-      </nav>
     </div>
   </header>
 </template>

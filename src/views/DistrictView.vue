@@ -49,7 +49,7 @@ onMounted(async () => {
     if (city.value) {
       router.replace(`/${citySlug.value}`)
     } else {
-      router.replace('/sehirler')
+      router.replace('/')
     }
     return
   }
