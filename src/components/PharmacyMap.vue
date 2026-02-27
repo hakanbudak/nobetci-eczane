@@ -21,10 +21,6 @@ let markersGroup: L.LayerGroup | null = null
 let userMarker: L.Marker | null = null
 const markerMap = new Map<string, L.Marker>()
 
-function isMobile() {
-  return window.innerWidth < 1024
-}
-
 function createPharmacyIcon(name: string, isActive: boolean): L.DivIcon {
   const bgColor = isActive ? '#FF0000' : '#FF0000'
   const borderColor = isActive ? '#FFFFFF' : '#FFFFFF'
@@ -142,17 +138,17 @@ function createPopupContent(pharmacy: Pharmacy): string {
             flex: 1.6;
             display: flex; align-items: center; justify-content: center; gap: 5px;
             font-size: 11.5px; font-weight: 700;
-            color: #ffffff;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            background: linear-gradient(135deg, #ff0000, #ff0000);
             border: none;
             border-radius: 8px;
             padding: 8px 6px;
             text-decoration: none;
-            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 2px 10px rgba(16,185,129,0.3);
             transition: all 0.15s;
           "
-          onmouseover="this.style.boxShadow='0 4px 16px rgba(37, 99, 235, 0.55)'; this.style.transform='translateY(-1px)'"
-          onmouseout="this.style.boxShadow='0 2px 10px rgba(37, 99, 235, 0.35)'; this.style.transform='translateY(0)'"
+          onmouseover="this.style.boxShadow='0 4px 16px rgba(16,185,129,0.5)'; this.style.transform='translateY(-1px)'"
+          onmouseout="this.style.boxShadow='0 2px 10px rgba(16,185,129,0.3)'; this.style.transform='translateY(0)'"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="3 11 22 2 13 21 11 13 3 11"/>
@@ -263,29 +259,8 @@ function focusOnPharmacy(pharmacy: Pharmacy): void {
     duration: 0.5,
   })
 
-  if (isMobile()) {
-    map.once('moveend', () => {
-      map?.panBy([55, 135], { animate: true })
-    })
-  }
-
   const key = getMarkerKey(pharmacy)
   markerMap.get(key)?.openPopup()
-}
-
-function centerForMobile(lat: number, lng: number, zoom: number): void {
-  if (!map) return
-  map.setView([lat, lng], zoom, { animate: false })
-  nextTick(() => {
-    if (!map) return
-    const vh = window.innerHeight
-    // Bottom sheet başlangıç translateY = vh * 0.45
-    // Haritanın kapatılan kısmı = vh - (vh * 0.45) = vh * 0.55
-    // Konumu görünür alanın ortasına taşımak için yukarı kaydır
-    const coveredBySheet = vh * 0.55
-    const offsetY = Math.round(coveredBySheet / 2)
-    map.panBy([0, offsetY], { animate: true, duration: 0.6 })
-  })
 }
 
 watch(
@@ -307,31 +282,25 @@ watch(
 )
 
 watch(
-    () => props.userLocation,
-    (newLoc) => {
-      if (newLoc && map) {
-        lastUserLocationTime.value = Date.now()
-        if (isMobile()) {
-          centerForMobile(newLoc.lat, newLoc.lng, 13)
-        } else {
-          map.setView([newLoc.lat, newLoc.lng], 13, { animate: true, duration: 0.8 })
-        }
-        nextTick(() => updateMarkers())
-      } else {
-        nextTick(() => updateMarkers())
-      }
+  () => props.userLocation,
+  (newLoc) => {
+    if (newLoc && map) {
+       lastUserLocationTime.value = Date.now()
+
+       map.setView([newLoc.lat, newLoc.lng], 14, { animate: true, duration: 1.0 })
+
+       nextTick(() => updateMarkers())
+    } else {
+       nextTick(() => updateMarkers())
     }
+  }
 )
 
 onMounted(() => {
   initMap()
   if (props.userLocation && map) {
-    lastUserLocationTime.value = Date.now()
-    if (isMobile()) {
-      centerForMobile(props.userLocation.lat, props.userLocation.lng, 13)
-    } else {
-      map.setView([props.userLocation.lat, props.userLocation.lng], 13)
-    }
+     lastUserLocationTime.value = Date.now()
+     map.setView([props.userLocation.lat, props.userLocation.lng], 14)
   }
 
   if (props.pharmacies.length > 0) {
