@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useGeolocation } from '@/composables/useGeolocation'
 import { usePharmacy } from '@/composables/usePharmacy'
@@ -30,6 +30,16 @@ const { coordinates, status, requestLocation } = useGeolocation()
 const { pharmacies, isLoading, error, fetchPharmacies, sortByDistance } = usePharmacy()
 
 const activePharmacy = ref<Pharmacy | null>(null)
+const isListVisible = ref(true)
+const desktopMap = ref<InstanceType<typeof PharmacyMap> | null>(null)
+
+// Liste paneli açılıp kapanınca harita boyutunu yeniden hesaplat
+watch(isListVisible, () => {
+  // CSS geçişi (350ms) bittikten sonra invalidateSize
+  setTimeout(() => {
+    desktopMap.value?.triggerResize()
+  }, 370)
+})
 const selectedCitySlug = ref<string>('')
 const selectedDistrictSlug = ref<string>('')
 const selectedDistrictName = ref<string>('')
@@ -156,7 +166,7 @@ function handleCityClear(): void {
     <div class="hidden lg:flex h-full w-full">
 
       <!-- Harita -->
-      <div class="relative flex-1 h-full">
+      <div class="relative flex-1 h-full min-w-0">
         <div class="absolute top-3 left-3 z-[1000] flex flex-col gap-2 pointer-events-none">
           <div
               v-if="status === 'idle' || status === 'requesting'"
@@ -182,7 +192,26 @@ function handleCityClear(): void {
             <span>📍 Konum yok</span>
           </div>
         </div>
+
+        <!-- Liste Paneli Toggle Butonu — harita ile panel arasındaki kenarda -->
+        <button
+          @click="isListVisible = !isListVisible"
+          :title="isListVisible ? 'Listeyi Gizle' : 'Listeyi Göster'"
+          class="absolute right-0 top-1/2 -translate-y-1/2 z-[1001] flex flex-col items-center justify-center gap-1 w-5 h-16 bg-dark-800 hover:bg-dark-700 border border-dark-600 hover:border-primary-500/60 rounded-l-lg shadow-xl transition-all duration-200 group"
+        >
+          <!-- Panel açıksa: sağ ok (kapat), kapalıysa: sol ok (aç) -->
+          <svg
+            class="w-3 h-3 text-dark-400 group-hover:text-primary-400 transition-colors"
+            :class="{ 'rotate-180': !isListVisible }"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            style="transition: transform 0.3s ease, color 0.2s;"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
         <PharmacyMap
+            ref="desktopMap"
             :pharmacies="pharmacies"
             :user-location="coordinates"
             :active-pharmacy="activePharmacy"
@@ -191,7 +220,8 @@ function handleCityClear(): void {
       </div>
 
       <!-- Liste paneli -->
-      <div class="w-[800px] shrink-0 h-full flex flex-col border-l border-dark-700/50">
+      <Transition name="slide-panel">
+      <div v-show="isListVisible" class="w-[800px] shrink-0 h-full flex flex-col border-l border-dark-700/50">
         <div class="shrink-0 p-4 border-b border-dark-700/50 space-y-3 bg-dark-900">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-bold text-dark-100 truncate pr-2">
@@ -222,6 +252,7 @@ function handleCityClear(): void {
           />
         </div>
       </div>
+      </Transition>
     </div>
 
     <!-- ═══════════ MOBİL (< lg) ═══════════ -->
@@ -326,3 +357,23 @@ function handleCityClear(): void {
 
   </div>
 </template>
+
+<style scoped>
+/* Desktop liste paneli açılıp kapanma animasyonu */
+.slide-panel-enter-active,
+.slide-panel-leave-active {
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s ease;
+  overflow: hidden;
+}
+.slide-panel-enter-from,
+.slide-panel-leave-to {
+  width: 0 !important;
+  opacity: 0;
+}
+.slide-panel-enter-to,
+.slide-panel-leave-from {
+  width: 800px;
+  opacity: 1;
+}
+</style>

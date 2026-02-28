@@ -359,7 +359,11 @@ onBeforeUnmount(() => {
   }
 })
 
-defineExpose({ focusOnPharmacy })
+function triggerResize(): void {
+  map?.invalidateSize()
+}
+
+defineExpose({ focusOnPharmacy, triggerResize })
 </script>
 
 <template>
