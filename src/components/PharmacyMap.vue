@@ -61,102 +61,136 @@ function getMarkerKey(pharmacy: Pharmacy): string {
 
 function createPopupContent(pharmacy: Pharmacy): string {
   const phone = pharmacy.phone.replace(/\s/g, '')
+  const hasPhone = phone.length > 0
   return `
-    <div style="padding: 10px 12px 12px; min-width: 200px; max-width: 260px;">
-
-      <!-- Başlık -->
-      <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px;">
-        <div style="
-          width: 28px; height: 28px; min-width: 28px;
-          background: linear-gradient(135deg, #ff0000, #ff0000);
-          border-radius: 8px;
-          display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 2px 8px rgba(16,185,129,0.35);
-        ">
-          E
-        </div>
-        <div style="flex: 1; min-width: 0;">
-          <div style="font-weight: 700; color: #f1f5f9; font-size: 12.5px; line-height: 1.3; margin-bottom: 2px; word-break: break-word;">
-            ${pharmacy.name}
-          </div>
-          <div style="
-            display: inline-block;
-            font-size: 10px; font-weight: 600;
-            color: #10b981;
-            background: rgba(16,185,129,0.12);
-            border: 1px solid rgba(16,185,129,0.2);
-            border-radius: 4px;
-            padding: 1px 6px;
-          ">${pharmacy.district}</div>
-        </div>
-      </div>
-
-      <!-- Adres -->
+    <div style="
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-width: 230px; max-width: 275px;
+      overflow: hidden;
+      border-radius: 14px;
+    ">
+      <!-- Gradient başlık şeridi -->
       <div style="
-        display: flex; align-items: flex-start; gap: 6px;
-        background: rgba(255,255,255,0.04);
-        border-radius: 8px;
-        padding: 7px 9px;
-        margin-bottom: 10px;
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        padding: 12px 14px 11px;
+        position: relative;
+        overflow: hidden;
       ">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px; flex-shrink: 0;">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
-        </svg>
-        <span style="font-size: 11px; color: #ffffff; line-height: 1.45; word-break: break-word;">
-          ${pharmacy.address}
-        </span>
+        <!-- Dekoratif daireler -->
+        <div style="position:absolute;top:-20px;right:-20px;width:75px;height:75px;background:rgba(255,255,255,0.08);border-radius:50%;pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-28px;left:25px;width:60px;height:60px;background:rgba(255,255,255,0.05);border-radius:50%;pointer-events:none;"></div>
+
+        <div style="display:flex;align-items:flex-start;gap:10px;position:relative;">
+          <!-- + ikonu -->
+          <div style="
+            width:38px;height:38px;min-width:38px;
+            background:rgba(255,255,255,0.18);
+            border-radius:11px;
+            display:flex;align-items:center;justify-content:center;
+            border:1.5px solid rgba(255,255,255,0.30);
+            font-weight:900;font-size:20px;color:#fff;
+            box-shadow:0 2px 10px rgba(0,0,0,0.25);
+            line-height:1;
+          ">+</div>
+
+          <div style="flex:1;min-width:0;">
+            <div style="
+              font-weight:700;font-size:13px;color:#fff;
+              line-height:1.35;word-break:break-word;
+              margin-bottom:6px;
+            ">${pharmacy.name}</div>
+
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <span style="
+                font-size:10px;font-weight:600;
+                background:rgba(255,255,255,0.20);
+                color:#fff;border-radius:20px;
+                padding:2px 8px;
+                border:1px solid rgba(255,255,255,0.25);
+              ">📍 ${pharmacy.district}</span>
+              <span style="
+                font-size:10px;font-weight:700;
+                background:rgba(16,185,129,0.80);
+                color:#fff;border-radius:20px;
+                padding:2px 8px;
+              ">✦ Nöbetçi</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Aksiyon butonları -->
-      <div style="display: flex; gap: 6px;">
-        <a
-          href="tel:${phone}"
-          style="
-            flex: 1;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-            font-size: 11.5px; font-weight: 600;
-            color: #ffffff;
-            background: #009018;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 8px 6px;
-            text-decoration: none;
-            transition: all 0.15s;
-          "
-          onmouseover="this.style.background='#00cc22';"
-          onmouseout="this.style.background='#009018';"
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Koyu gövde -->
+      <div style="background:#1e293b;padding:11px 13px 12px;">
+
+        <!-- Adres -->
+        <div style="
+          display:flex;align-items:flex-start;gap:8px;
+          background:rgba(255,255,255,0.05);
+          border:1px solid rgba(255,255,255,0.07);
+          border-radius:9px;padding:8px 10px;
+          margin-bottom:${hasPhone ? '7px' : '10px'};
+        ">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex-shrink:0;">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span style="font-size:11.5px;color:#cbd5e1;line-height:1.5;word-break:break-word;">${pharmacy.address}</span>
+        </div>
+
+        ${hasPhone ? `
+        <!-- Telefon -->
+        <div style="
+          display:flex;align-items:center;gap:8px;
+          background:rgba(255,255,255,0.05);
+          border:1px solid rgba(255,255,255,0.07);
+          border-radius:9px;padding:8px 10px;
+          margin-bottom:10px;
+        ">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.68a16 16 0 0 0 6 6l.54-.54a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18.92z"/>
           </svg>
-          Ara
-        </a>
-        <a
-          href="https://www.google.com/maps/dir/?api=1&destination=${pharmacy.location.lat},${pharmacy.location.lng}"
-          target="_blank"
-          rel="noopener"
-          style="
-            flex: 1.6;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-            font-size: 11.5px; font-weight: 700;
-            color: white;
-            background: linear-gradient(135deg, #ff0000, #ff0000);
-            border: none;
-            border-radius: 8px;
-            padding: 8px 6px;
-            text-decoration: none;
-            box-shadow: 0 2px 10px rgba(16,185,129,0.3);
-            transition: all 0.15s;
+          <span style="font-size:12px;color:#cbd5e1;letter-spacing:0.3px;">${pharmacy.phone}</span>
+        </div>
+        ` : ''}
+
+        <!-- Butonlar -->
+        <div style="display:flex;gap:7px;">
+          ${hasPhone ? `
+          <a href="tel:${phone}" style="
+            flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+            font-size:12px;font-weight:700;color:#fff;
+            background:linear-gradient(135deg,#059669,#047857);
+            border-radius:9px;padding:9px 6px;text-decoration:none;
+            box-shadow:0 2px 8px rgba(5,150,105,0.35);
           "
-          onmouseover="this.style.boxShadow='0 4px 16px rgba(16,185,129,0.5)'; this.style.transform='translateY(-1px)'"
-          onmouseout="this.style.boxShadow='0 2px 10px rgba(16,185,129,0.3)'; this.style.transform='translateY(0)'"
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-          </svg>
-          Yol Tarifi
-        </a>
+          onmouseover="this.style.filter='brightness(1.1)';this.style.transform='translateY(-1px)';"
+          onmouseout="this.style.filter='brightness(1)';this.style.transform='translateY(0)';">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.68a16 16 0 0 0 6 6l.54-.54a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18.92z"/>
+            </svg>
+            Ara
+          </a>
+          ` : ''}
+          <a
+            href="https://www.google.com/maps/dir/?api=1&destination=${pharmacy.location.lat},${pharmacy.location.lng}"
+            target="_blank" rel="noopener"
+            style="
+              flex:${hasPhone ? '1.5' : '1'};
+              display:flex;align-items:center;justify-content:center;gap:5px;
+              font-size:12px;font-weight:700;color:#fff;
+              background:linear-gradient(135deg,#2563eb,#1d4ed8);
+              border-radius:9px;padding:9px 6px;text-decoration:none;
+              box-shadow:0 2px 8px rgba(37,99,235,0.35);
+            "
+            onmouseover="this.style.filter='brightness(1.1)';this.style.transform='translateY(-1px)';"
+            onmouseout="this.style.filter='brightness(1)';this.style.transform='translateY(0)';"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+            </svg>
+            Yol Tarifi
+          </a>
+        </div>
       </div>
     </div>
   `
@@ -298,7 +332,7 @@ function focusOnPharmacy(pharmacy: Pharmacy): void {
   const bp = props.bottomPadding ?? 0
   if (bp > 0) {
     requestAnimationFrame(() => {
-      map?.panBy([0, bp / 3.5], { animate: true, duration: 0.5 })
+      map?.panBy([0, bp / 5.5], { animate: true, duration: 0.5 })
     })
   }
 }
@@ -405,6 +439,27 @@ defineExpose({ focusOnPharmacy, triggerResize, zoomToPharmacies })
 .user-marker {
   background: transparent !important;
   border: none !important;
+}
+
+/* Leaflet popup kapsayıcısını sıfırla — kendi tasarımımız yönetsin */
+.leaflet-popup-content-wrapper {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3) !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Popup ok (▼) şeffaf renk */
+.leaflet-popup-tip {
+  background: #1e293b !important;
+  box-shadow: none !important;
 }
 
 @keyframes ping {
