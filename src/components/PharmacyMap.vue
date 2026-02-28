@@ -332,7 +332,8 @@ function focusOnPharmacy(pharmacy: Pharmacy): void {
   const bp = props.bottomPadding ?? 0
   if (bp > 0) {
     requestAnimationFrame(() => {
-      map?.panBy([0, bp / 5.5], { animate: true, duration: 0.5 })
+      // Y: yukarı kaydır (bottom sheet için), X: sola hafifçe kaydır (popup ortalaması)
+      map?.panBy([50, bp / 5.5], { animate: true, duration: 0.5 })
     })
   }
 }
