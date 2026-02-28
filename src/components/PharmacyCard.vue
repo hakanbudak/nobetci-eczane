@@ -71,7 +71,7 @@ const colorClasses = computed(() => {
     <div class="flex items-start gap-3 mb-3">
       <!-- E Logosu: Sabit Renk -->
       <div 
-        class="w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm shrink-0 mt-0.5 bg-[#FF0000] text-white border border-blue-500/30"
+        class="w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm shrink-0 mt-0.5 bg-[#FF0000] text-white border border-white"
         style="text-shadow: 0 1px 2px rgba(0,0,0,0.3);"
       >
         E

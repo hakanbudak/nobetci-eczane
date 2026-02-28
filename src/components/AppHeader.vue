@@ -16,7 +16,9 @@ const props = defineProps<{
         to="/"
         class="flex items-center gap-2 text-primary-400 font-bold text-base tracking-tight hover:text-primary-300 transition-colors"
       >
-        <span class="w-7 h-7 bg-[#FF0000] rounded-lg flex items-center justify-center text-white text-sm font-black">E</span>
+        <span class="w-7 h-7 bg-[#FF0000] rounded-lg flex items-center justify-center text-white text-sm font-black border-2 border-white">
+          E
+        </span>
         <span class="text-dark-100">Nöbetçi Eczane</span>
       </RouterLink>
 
