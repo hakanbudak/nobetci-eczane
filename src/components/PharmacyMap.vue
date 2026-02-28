@@ -235,6 +235,30 @@ function updateMarkers(): void {
   fitBounds()
 }
 
+/**
+ * Sadece aktif/inaktif marker ikonlarını yeniler.
+ * clearLayers ve fitBounds ÇAĞIRMAZ — zoom'u bozmaz.
+ */
+function refreshActiveIcon(): void {
+  if (!markersGroup) return
+  markersGroup.eachLayer((layer) => {
+    const marker = layer as L.Marker
+    // Marker'ın hangi eczaneye ait olduğunu bul
+    for (const pharmacy of props.pharmacies) {
+      if (
+        marker.getLatLng().lat === pharmacy.location.lat &&
+        marker.getLatLng().lng === pharmacy.location.lng
+      ) {
+        const isActive =
+          props.activePharmacy?.name === pharmacy.name &&
+          props.activePharmacy?.address === pharmacy.address
+        marker.setIcon(createPharmacyIcon(pharmacy.name, isActive))
+        break
+      }
+    }
+  })
+}
+
 const lastUserLocationTime = ref(0)
 
 function fitBounds(): void {
@@ -291,9 +315,9 @@ watch(
   () => props.activePharmacy,
   (newPharmacy) => {
     if (newPharmacy) {
-      // Sadece marker icon'larını güncelle; fitBounds çağırma (focusOnPharmacy'yi ezer)
       nextTick(() => {
-        updateMarkers()
+        // Sadece ikonları güncelle — fitBounds tetikleme, zoom bozulmasın
+        refreshActiveIcon()
         focusOnPharmacy(newPharmacy)
       })
     }
@@ -363,7 +387,13 @@ function triggerResize(): void {
   map?.invalidateSize()
 }
 
-defineExpose({ focusOnPharmacy, triggerResize })
+/** Şehir/ilçe değişince HomeView'dan çağrılır — time guard'ı bypass ederek fitBounds çalıştırır */
+function zoomToPharmacies(): void {
+  lastUserLocationTime.value = 0  // guard'ı sıfırla
+  fitBounds()
+}
+
+defineExpose({ focusOnPharmacy, triggerResize, zoomToPharmacies })
 </script>
 
 <template>

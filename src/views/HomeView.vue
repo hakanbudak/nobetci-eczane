@@ -32,6 +32,13 @@ const { pharmacies, isLoading, error, fetchPharmacies, sortByDistance } = usePha
 const activePharmacy = ref<Pharmacy | null>(null)
 const isListVisible = ref(true)
 const desktopMap = ref<InstanceType<typeof PharmacyMap> | null>(null)
+const mobileMap = ref<InstanceType<typeof PharmacyMap> | null>(null)
+
+// Her iki haritada da fitBounds'u zorla çalıştır
+function zoomAllMaps(): void {
+  desktopMap.value?.zoomToPharmacies()
+  mobileMap.value?.zoomToPharmacies()
+}
 
 // Liste paneli açılıp kapanınca harita boyutunu yeniden hesaplat
 watch(isListVisible, () => {
@@ -139,6 +146,8 @@ async function handleCityChange(_cityName: string, citySlug: string): Promise<vo
   detectedCityName.value = ''
   await fetchPharmacies(citySlug)
   if (coordinates.value) sortByDistance(coordinates.value)
+  // Eczaneler yüklendikten sonra haritayı o şehre taşı
+  nextTick(() => zoomAllMaps())
 }
 
 async function handleDistrictChange(districtName: string, districtSlug: string): Promise<void> {
@@ -147,6 +156,8 @@ async function handleDistrictChange(districtName: string, districtSlug: string):
   if (selectedCitySlug.value) {
     await fetchPharmacies(selectedCitySlug.value, districtSlug)
     if (coordinates.value) sortByDistance(coordinates.value)
+    // Eczaneler yüklendikten sonra haritayı o ilçeye taşı
+    nextTick(() => zoomAllMaps())
   }
 }
 
@@ -286,6 +297,7 @@ function handleCityClear(): void {
           </div>
         </div>
         <PharmacyMap
+            ref="mobileMap"
             :pharmacies="pharmacies"
             :user-location="coordinates"
             :active-pharmacy="activePharmacy"
