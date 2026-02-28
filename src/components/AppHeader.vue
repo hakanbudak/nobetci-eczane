@@ -24,7 +24,7 @@ const props = defineProps<{
       <div class="lg:hidden flex items-center">
         <!-- Konum alınıyor -->
         <div
-          v-if="locationStatus === 'idle' || locationStatus === 'requesting'"
+          v-if="props.locationStatus === 'idle' || props.locationStatus === 'requesting'"
           class="inline-flex items-center gap-1.5 text-dark-300 text-xs"
         >
           <svg class="w-3 h-3 animate-spin text-primary-400 shrink-0" fill="none" viewBox="0 0 24 24">
@@ -36,20 +36,20 @@ const props = defineProps<{
 
         <!-- Konum bulundu -->
         <div
-          v-else-if="locationStatus === 'granted' && cityName"
+          v-else-if="props.locationStatus === 'granted' && props.cityName"
           class="inline-flex items-center gap-1.5 text-dark-200 text-xs"
         >
           <span class="w-1.5 h-1.5 bg-green-500 rounded-full shrink-0" />
-          <span class="truncate max-w-[140px]">{{ cityName }}</span>
+          <span class="truncate max-w-[140px]">{{ props.cityName }}</span>
           <span
-            v-if="pharmacyCount && pharmacyCount > 0"
+            v-if="props.pharmacyCount && props.pharmacyCount > 0"
             class="bg-primary-500/20 text-primary-300 rounded-full px-1.5 py-0.5 text-[10px] font-semibold border border-primary-500/30"
-          >{{ pharmacyCount }}</span>
+          >{{ props.pharmacyCount }}</span>
         </div>
 
         <!-- Konum yok -->
         <div
-          v-else-if="locationStatus === 'denied' || locationStatus === 'unavailable'"
+          v-else-if="props.locationStatus === 'denied' || props.locationStatus === 'unavailable'"
           class="inline-flex items-center gap-1.5 text-amber-400 text-xs"
         >
           <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
