@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useGeolocation } from '@/composables/useGeolocation'
 import { usePharmacy } from '@/composables/usePharmacy'
