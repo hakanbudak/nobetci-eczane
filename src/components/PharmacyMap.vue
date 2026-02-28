@@ -9,6 +9,8 @@ const props = defineProps<{
   pharmacies: Pharmacy[]
   userLocation?: Coordinates | null
   activePharmacy?: Pharmacy | null
+  /** Mobilde Bottom Sheet'in kapattığı piksel yüksekliği (görünür alana göre merkez için) */
+  bottomPadding?: number
 }>()
 
 const emit = defineEmits<{
@@ -247,7 +249,12 @@ function fitBounds(): void {
 
   if (points.length > 0) {
     const bounds = L.latLngBounds(points)
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 })
+    const bp = props.bottomPadding ?? 0
+    map.fitBounds(bounds, {
+      paddingTopLeft: [40, 40],
+      paddingBottomRight: [40, 40 + bp],
+      maxZoom: 15,
+    })
   }
 }
 
@@ -287,7 +294,12 @@ watch(
     if (newLoc && map) {
        lastUserLocationTime.value = Date.now()
        map.invalidateSize()
-       map.setView([newLoc.lat, newLoc.lng], 14, { animate: true, duration: 1.0 })
+       map.setView([newLoc.lat, newLoc.lng], 14, { animate: false })
+       // Görünür alan = tam konteyner - bottomPadding; merkezi yukarı kaydır
+       const bp = props.bottomPadding ?? 0
+       if (bp > 0) {
+         map.panBy([0, bp / 2], { animate: true, duration: 0.8 })
+       }
 
        nextTick(() => updateMarkers())
     } else {
@@ -314,7 +326,11 @@ onMounted(() => {
 
   if (props.userLocation && map) {
      lastUserLocationTime.value = Date.now()
-     map.setView([props.userLocation.lat, props.userLocation.lng], 14)
+     map.setView([props.userLocation.lat, props.userLocation.lng], 14, { animate: false })
+     const bp = props.bottomPadding ?? 0
+     if (bp > 0) {
+       map.panBy([0, bp / 2], { animate: false })
+     }
   }
 
   if (props.pharmacies.length > 0) {

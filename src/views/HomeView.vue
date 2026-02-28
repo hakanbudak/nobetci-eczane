@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useGeolocation } from '@/composables/useGeolocation'
 import { usePharmacy } from '@/composables/usePharmacy'
@@ -43,6 +43,14 @@ const isDragging = ref(false)
 const pointerStartY = ref(0)
 const translateAtDragStart = ref(0)
 const velocityHistory: { t: number; y: number }[] = []
+// Mobilde haritanın görünür alanı = translateY kadar yükseklik.
+// Bottom Sheet'in kapattığı alan = window.innerHeight - translateY
+// Bu değeri PharmacyMap'e geçirince setView/fitBounds görünür alana göre merkezlenir.
+const bottomPadding = computed(() => {
+  if (typeof window === 'undefined') return 0
+  return Math.max(0, window.innerHeight - translateY.value)
+})
+
 
 function getMaxTranslate() {
   // En fazla: sadece tutamaç (≈60px) görünsün
@@ -164,7 +172,7 @@ function handleCityClear(): void {
               v-if="status === 'granted' && detectedCityName"
               class="inline-flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-primary-700/30 shadow-lg pointer-events-auto w-fit"
           >
-            <span class="w-2 h-2 bg-primary-400 rounded-full shrink-0" />
+            <span class="w-2 h-2 bg-green-500 rounded-full shrink-0" />
             <span>📍 {{ detectedCityName }} · {{ pharmacies.length }} eczane</span>
           </div>
           <div
@@ -236,7 +244,7 @@ function handleCityClear(): void {
               v-if="status === 'granted' && detectedCityName"
               class="inline-flex items-center gap-2 bg-dark-900/90 backdrop-blur-sm text-dark-200 rounded-lg px-3 py-2 text-xs border border-primary-700/30 shadow-lg pointer-events-auto w-fit"
           >
-            <span class="w-2 h-2 bg-primary-400 rounded-full shrink-0" />
+            <span class="w-2 h-2 bg-green-500 rounded-full shrink-0" />
             <span class="truncate">📍 {{ detectedCityName }} · {{ pharmacies.length }} eczane</span>
           </div>
           <div
@@ -250,6 +258,7 @@ function handleCityClear(): void {
             :pharmacies="pharmacies"
             :user-location="coordinates"
             :active-pharmacy="activePharmacy"
+            :bottom-padding="bottomPadding"
             @select-pharmacy="handlePharmacySelect"
         />
       </div>

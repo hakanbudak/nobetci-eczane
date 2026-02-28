@@ -24,6 +24,15 @@ const filteredCities = computed(() => {
   return searchCities(searchQuery.value)
 })
 
+const filteredDistricts = computed(() => {
+  if (!selectedCityData.value) return []
+  const q = searchQuery.value.toLowerCase().trim()
+  if (!q) return selectedCityData.value.districts
+  return selectedCityData.value.districts.filter((d) =>
+    d.name.toLowerCase().includes(q)
+  )
+})
+
 function selectCity(city: City): void {
   selectedCityData.value = city
   searchQuery.value = ''
@@ -100,7 +109,7 @@ watch(
               v-model="searchQuery"
               type="text"
               :placeholder="selectedCityData ? 'İlçe ara...' : 'Şehir ara...'"
-              class="flex-1 text-sm bg-slate-50 border-0 rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500/20 focus:bg-white outline-none placeholder:text-slate-400"
+              class="flex-1 text-black text-sm bg-slate-50 border-0 rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500/20 focus:bg-white outline-none placeholder:text-slate-500"
             />
             <button
               v-if="selectedCityData"
@@ -115,7 +124,7 @@ watch(
         <div class="overflow-y-auto flex-1 p-2">
           <template v-if="selectedCityData">
             <button
-              v-for="district in selectedCityData.districts"
+              v-for="district in filteredDistricts"
               :key="district.slug"
               @click="selectDistrict(district)"
               class="w-full text-left px-3 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-colors"
@@ -123,6 +132,9 @@ watch(
             >
               {{ district.name }}
             </button>
+            <p v-if="filteredDistricts.length === 0" class="text-center text-sm text-slate-400 py-6">
+              İlçe bulunamadı
+            </p>
           </template>
 
           <template v-else>
