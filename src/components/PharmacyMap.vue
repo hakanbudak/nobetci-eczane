@@ -206,7 +206,8 @@ function updateMarkers(): void {
 
     marker.bindPopup(createPopupContent(pharmacy), {
       closeButton: false,
-      maxWidth: 260,
+      maxWidth: 250,
+      autoPan: false,  // panBy'ı ezmemesi için popup kendi kaydırma yapmasın
     })
 
     marker.on('click', () => {
@@ -252,7 +253,7 @@ function fitBounds(): void {
     const bp = props.bottomPadding ?? 0
     map.fitBounds(bounds, {
       paddingTopLeft: [40, 40],
-      paddingBottomRight: [40, 40 + bp],
+      paddingBottomRight: [20, 20 + bp],
       maxZoom: 15,
     })
   }
@@ -261,13 +262,21 @@ function fitBounds(): void {
 function focusOnPharmacy(pharmacy: Pharmacy): void {
   if (!map) return
 
-  map.setView([pharmacy.location.lat, pharmacy.location.lng], 16, {
-    animate: true,
-    duration: 0.5,
+  map.setView([pharmacy.location.lat, pharmacy.location.lng], 14, {
+    animate: false,
   })
 
+  // Önce popup'ı aç (autoPan:false olduğu için haritayı kaydırmaz)
   const key = getMarkerKey(pharmacy)
   markerMap.get(key)?.openPopup()
+
+  // panBy EN SON çalışmalı; requestAnimationFrame ile popup render'ından sonraya al
+  const bp = props.bottomPadding ?? 0
+  if (bp > 0) {
+    requestAnimationFrame(() => {
+      map?.panBy([0, bp / 3.5], { animate: true, duration: 0.5 })
+    })
+  }
 }
 
 watch(
@@ -282,8 +291,11 @@ watch(
   () => props.activePharmacy,
   (newPharmacy) => {
     if (newPharmacy) {
-      updateMarkers()
-      focusOnPharmacy(newPharmacy)
+      // Sadece marker icon'larını güncelle; fitBounds çağırma (focusOnPharmacy'yi ezer)
+      nextTick(() => {
+        updateMarkers()
+        focusOnPharmacy(newPharmacy)
+      })
     }
   }
 )
