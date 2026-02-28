@@ -286,7 +286,7 @@ watch(
   (newLoc) => {
     if (newLoc && map) {
        lastUserLocationTime.value = Date.now()
-
+       map.invalidateSize()
        map.setView([newLoc.lat, newLoc.lng], 14, { animate: true, duration: 1.0 })
 
        nextTick(() => updateMarkers())
@@ -296,8 +296,22 @@ watch(
   }
 )
 
+let resizeObserver: ResizeObserver | null = null
+
 onMounted(() => {
   initMap()
+
+  if (mapContainer.value && map) {
+    resizeObserver = new ResizeObserver(() => {
+      map?.invalidateSize()
+    })
+    resizeObserver.observe(mapContainer.value)
+  }
+
+  setTimeout(() => {
+    map?.invalidateSize()
+  }, 300)
+
   if (props.userLocation && map) {
      lastUserLocationTime.value = Date.now()
      map.setView([props.userLocation.lat, props.userLocation.lng], 14)
@@ -309,6 +323,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  resizeObserver = null
   if (map) {
     map.remove()
     map = null
